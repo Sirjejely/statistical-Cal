@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Statistical Calculator Home</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #e6f7ff;
+        position: relative;
+        overflow: hidden; /* Prevents scrollbars */
+      }
+      h1 {
+        color: #333;
+        position: absolute;
+        top: 20px;
+        width: 100%;
+        text-align: center;
+        z-index: 2; /* On top of other elements */
+      }
+      .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh; /* Full height */
+        z-index: 2; /* On top of other elements */
+      }
+      button {
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin: 10px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        z-index: 2; /* On top of other elements */
+      }
+      button:hover {
+        background-color: #45a049;
+      }
+      .background {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url("https://lh3.googleusercontent.com/a/ACg8ocLCnKFFaf9G_32F8ZqgiVn5irr46GKrq-Z4p5pT7z2FXrkhq2DZ=s450-c-no")
+          no-repeat center center;
+        background-size: cover;
+        opacity: 0.2; /* Make the background faint */
+        z-index: 1; /* Behind the text and buttons */
+      }
+      /* Scatter effect for symbols */
+      .scatter-symbols {
+        position: absolute;
+        color: rgba(0, 0, 0, 0.1); /* Light color for symbols */
+        white-space: nowrap;
+        pointer-events: none; /* Prevents interaction with symbols */
+      }
+      .scatter-symbols span {
+        position: absolute;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="background"></div>
+    <!-- Faint Background Image -->
+    <h1>Welcome to the Statistical Calculator</h1>
+    <div class="container">
+      <div class="symbols scatter-symbols">
+        <span style="top: 50px; left: 10%">Σ</span>
+        <span style="top: 80px; left: 60%">μ</span>
+        <span style="top: 120px; left: 20%">σ</span>
+        <span style="top: 150px; left: 70%">χ²</span>
+        <span style="top: 200px; left: 40%">p</span>
+        <span style="top: 230px; left: 15%">α</span>
+        <span style="top: 250px; left: 80%">β</span>
+        <span style="top: 300px; left: 50%">Δ</span>
+        <span style="top: 320px; left: 75%">∑</span>
+        <span style="top: 350px; left: 25%">≈</span>
+        <span style="top: 380px; left: 55%">√</span>
+        <span style="top: 400px; left: 90%">∞</span>
+        <span style="top: 420px; left: 35%">∩</span>
+      </div>
+      <button onclick="window.open('level.html', '_blank')">
+        Level of Participation
+      </button>
+      <button onclick="window.open('attitude.html', '_blank')">
+        Attitude Analysis
+      </button>
+      <button onclick="window.open('chi_square1.html', '_blank')">
+        Chi-Square Analysis 1
+      </button>
+      <button onclick="window.open('chi_square2.html', '_blank')">
+        Chi-Square Analysis 2
+      </button>
+    </div>
+  </body>
+</html>

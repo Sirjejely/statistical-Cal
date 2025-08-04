@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Attitude Measurement</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      th,
+      td {
+        border: 1px solid #ccc;
+        padding: 10px;
+        text-align: center;
+      }
+      th {
+        background-color: #f4f4f4;
+      }
+      input,
+      textarea {
+        margin: 5px;
+        padding: 5px;
+        width: calc(100% - 12px);
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Attitude Measurement</h2>
+
+    <div>
+      <h3>Paste Data</h3>
+      <textarea
+        id="data-input"
+        rows="10"
+        placeholder="Paste your data here (format: statement, SA, A, D, SD)"
+      ></textarea>
+      <button onclick="pasteData()">Paste Data</button>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Statements</th>
+          <th>SA (N)</th>
+          <th>A (N)</th>
+          <th>D (N)</th>
+          <th>SD (N)</th>
+          <th>Mean ± Std</th>
+        </tr>
+      </thead>
+      <tbody id="table-body">
+        <!-- Data will be inserted here -->
+      </tbody>
+    </table>
+
+    <button onclick="calculateData()">Calculate Data</button>
+    <button onclick="copyAll()">Copy Table and Transformation Data</button>
+
+    <h3>Data Transformation</h3>
+    <div id="data-transformation">
+      <!-- Data transformation results will be inserted here -->
+    </div>
+
+    <h3>Summary Explanation</h3>
+    <div id="summary-explanation">
+      <!-- Summary explanation will be inserted here -->
+    </div>
+
+    <script>
+      let data = [];
+      let sampleSize = 0; // Initialize sample size
+
+      function pasteData() {
+        const input = document.getElementById("data-input").value.trim();
+        const lines = input.split("\n");
+
+        data.length = 0; // Clear previous data
+        sampleSize = 0; // Reset sample size
+
+        lines.forEach((line, index) => {
+          const parts = line.split("\t").map((part) => part.trim());
+          if (parts.length === 5) {
+            const [statement, sa, a, d, sd] = parts;
+            const saNum = parseInt(sa) || 0;
+            const aNum = parseInt(a) || 0;
+            const dNum = parseInt(d) || 0;
+            const sdNum = parseInt(sd) || 0;
+
+            // Store data
+            data.push({ statement, sa: saNum, a: aNum, d: dNum, sd: sdNum });
+
+            // Calculate sample size based on the first row's total responses
+            if (index === 0) {
+              sampleSize = saNum + aNum + dNum + sdNum;
+            }
+          }
+        });
+
+        populateTable();
+        document.getElementById("data-input").value = ""; // Clear the input area
+        alert("Data pasted successfully!");
+      }
+
+      function populateTable() {
+        const tableBody = document.getElementById("table-body");
+        tableBody.innerHTML = ""; // Clear previous table rows
+
+        data.forEach((item) => {
+          const total = item.sa + item.a + item.d + item.sd; // Calculate total for the row
+
+          const row = `
+                    <tr>
+                        <td>${item.statement}</td>
+                        <td>${item.sa} (${((item.sa / total) * 100).toFixed(
+            1
+          )}%)</td>
+                        <td>${item.a} (${((item.a / total) * 100).toFixed(
+            1
+          )}%)</td>
+                        <td>${item.d} (${((item.d / total) * 100).toFixed(
+            1
+          )}%)</td>
+                        <td>${item.sd} (${((item.sd / total) * 100).toFixed(
+            1
+          )}%)</td>
+                        <td>To be calculated</td>
+                    </tr>
+                `;
+          tableBody.innerHTML += row;
+        });
+      }
+
+      function calculateData() {
+        const tableBody = document.getElementById("table-body");
+        tableBody.innerHTML = ""; // Clear previous table rows
+
+        let totalSA = 0,
+          totalA = 0,
+          totalD = 0,
+          totalSD = 0;
+
+        data.forEach((item) => {
+          totalSA += item.sa;
+          totalA += item.a;
+          totalD += item.d;
+          totalSD += item.sd;
+
+          const total = item.sa + item.a + item.d + item.sd;
+
+          // Calculate mean with new weights
+          const mean =
+            (4 * item.sa + 3 * item.a + 2 * item.d + 1 * item.sd) / total;
+
+          // Calculate standard deviation
+          const stdDev = Math.sqrt(
+            ((4 - mean) ** 2 * item.sa +
+              (3 - mean) ** 2 * item.a +
+              (2 - mean) ** 2 * item.d +
+              (1 - mean) ** 2 * item.sd) /
+              total
+          ).toFixed(2);
+
+          const row = `
+                    <tr>
+                        <td>${item.statement}</td>
+                        <td>${item.sa} (${((item.sa / total) * 100).toFixed(
+            1
+          )}%)</td>
+                        <td>${item.a} (${((item.a / total) * 100).toFixed(
+            1
+          )}%)</td>
+                        <td>${item.d} (${((item.d / total) * 100).toFixed(
+            1
+          )}%)</td>
+                        <td>${item.sd} (${((item.sd / total) * 100).toFixed(
+            1
+          )}%)</td>
+                        <td>${mean.toFixed(2)} ± ${stdDev}</td>
+                    </tr>
+                `;
+          tableBody.innerHTML += row;
+        });
+
+        // Calculate Data Transformation
+        displayDataTransformation(totalSA, totalA, totalD, totalSD);
+      }
+
+      function displayDataTransformation(totalSA, totalA, totalD, totalSD) {
+        const transformationDiv = document.getElementById(
+          "data-transformation"
+        );
+        transformationDiv.innerHTML = ""; // Clear previous transformation results
+
+        const totalResponses = totalSA + totalA + totalD + totalSD;
+
+        const favorableAttitude = (
+          ((totalSA + totalA) / totalResponses) *
+          sampleSize
+        ).toFixed(2);
+        const unfavorableAttitude = (
+          ((totalSD + totalD) / totalResponses) *
+          sampleSize
+        ).toFixed(2);
+
+        const transformationHtml = `
+                <p><strong>Favorable Attitude (SA + A):</strong> ${favorableAttitude} (Sum of SA: ${totalSA}, Sum of A: ${totalA})</p>
+                <p><strong>Unfavorable Attitude (D + SD):</strong> ${unfavorableAttitude} (Sum of D: ${totalD}, Sum of SD: ${totalSD})</p>
+                <p><em>Note: This can also be used to solve for perception and proportion.</em></p>
+            `;
+
+        transformationDiv.innerHTML = transformationHtml;
+
+        // Generate summary explanation
+        generateSummaryExplanation(favorableAttitude, unfavorableAttitude);
+      }
+
+      function generateSummaryExplanation(
+        favorableAttitude,
+        unfavorableAttitude
+      ) {
+        const explanationDiv = document.getElementById("summary-explanation");
+        explanationDiv.innerHTML = ""; // Clear previous explanation
+
+        const explanation = `
+                Among the ${sampleSize} respondents, 
+                ${favorableAttitude} respondents showed a favorable attitude, 
+                and ${unfavorableAttitude} respondents showed an unfavorable attitude.
+            `;
+        explanationDiv.innerHTML = explanation;
+      }
+
+      function copyAll() {
+        // Create a temporary element to hold the table and transformation data
+        const tempDiv = document.createElement("div");
+
+        // Create the table
+        const table = document.createElement("table");
+        table.innerHTML = document.querySelector("table").innerHTML; // Copy the current table structure
+        tempDiv.appendChild(table);
+
+        // Create the transformation data section
+        const transformationDiv = document.getElementById(
+          "data-transformation"
+        ).innerHTML;
+        const transformationSection = document.createElement("div");
+        transformationSection.innerHTML = transformationDiv;
+        tempDiv.appendChild(transformationSection);
+
+        // Create the summary explanation section
+        const explanationDiv = document.getElementById(
+          "summary-explanation"
+        ).innerHTML;
+        const explanationSection = document.createElement("div");
+        explanationSection.innerHTML = explanationDiv;
+        tempDiv.appendChild(explanationSection);
+
+        // Append the tempDiv to the body to make it selectable
+        document.body.appendChild(tempDiv);
+
+        // Copy the content
+        const selection = window.getSelection();
+        const range = document.createRange();
+        range.selectNode(tempDiv);
+        selection.removeAllRanges();
+        selection.addRange(range);
+
+        try {
+          const successful = document.execCommand("copy");
+          alert(
+            successful
+              ? "Table and transformation data copied to clipboard!"
+              : "Failed to copy."
+          );
+        } catch (err) {
+          alert("Failed to copy.");
+        }
+
+        document.body.removeChild(tempDiv); // Clean up
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chi-Square Calculator</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background-color: #f4f4f4;
+      }
+      h1 {
+        text-align: center;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      table,
+      th,
+      td {
+        border: 1px solid black;
+      }
+      th,
+      td {
+        padding: 8px;
+        text-align: center;
+      }
+      .input-section {
+        margin-bottom: 20px;
+      }
+      .btn {
+        background-color: #4caf50;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        cursor: pointer;
+        margin-top: 20px;
+      }
+      .btn:hover {
+        background-color: #45a049;
+      }
+      .result-section {
+        margin-top: 20px;
+      }
+      textarea {
+        width: 100%;
+        height: 100px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Chi-Square Calculator</h1>
+
+    <div class="input-section">
+      <label>Observed Values (SA, A, D, SD):</label>
+      <input type="number" id="observed_sa" value="26" />
+      <input type="number" id="observed_a" value="42" />
+      <input type="number" id="observed_d" value="23" />
+      <input type="number" id="observed_sd" value="36" /><br /><br />
+
+      <label>Degrees of Freedom (df):</label>
+      <input type="number" id="df" value="3" /><br /><br />
+
+      <label>Critical X² Value:</label>
+      <input type="number" id="critical_value" value="7.81" /><br /><br />
+
+      <button class="btn" onclick="calculateChiSquare()">
+        Calculate Chi-Square
+      </button>
+    </div>
+
+    <div class="result-section">
+      <h3>Results</h3>
+      <table id="resultTable">
+        <thead>
+          <tr>
+            <th>Cultural Beliefs</th>
+            <th>Observed (O)</th>
+            <th>Expected (E)</th>
+            <th>O - E</th>
+            <th>(O - E)²</th>
+            <th>(O - E)² / E</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>SA</td>
+            <td id="obs_sa"></td>
+            <td id="exp_sa"></td>
+            <td id="diff_sa"></td>
+            <td id="squared_diff_sa"></td>
+            <td id="chi_sq_sa"></td>
+          </tr>
+          <tr>
+            <td>A</td>
+            <td id="obs_a"></td>
+            <td id="exp_a"></td>
+            <td id="diff_a"></td>
+            <td id="squared_diff_a"></td>
+            <td id="chi_sq_a"></td>
+          </tr>
+          <tr>
+            <td>D</td>
+            <td id="obs_d"></td>
+            <td id="exp_d"></td>
+            <td id="diff_d"></td>
+            <td id="squared_diff_d"></td>
+            <td id="chi_sq_d"></td>
+          </tr>
+          <tr>
+            <td>SD</td>
+            <td id="obs_sd"></td>
+            <td id="exp_sd"></td>
+            <td id="diff_sd"></td>
+            <td id="squared_diff_sd"></td>
+            <td id="chi_sq_sd"></td>
+          </tr>
+          <tr>
+            <td><strong>Total</strong></td>
+            <td colspan="4"></td>
+            <td id="total_chi_sq"></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Interpretation</h3>
+      <textarea id="interpretation"></textarea>
+
+      <br /><button class="btn" onclick="copyToClipboard()">
+        Copy Results
+      </button>
+    </div>
+
+    <script>
+      function calculateChiSquare() {
+        // Get observed values
+        let obsSA = parseFloat(document.getElementById("observed_sa").value);
+        let obsA = parseFloat(document.getElementById("observed_a").value);
+        let obsD = parseFloat(document.getElementById("observed_d").value);
+        let obsSD = parseFloat(document.getElementById("observed_sd").value);
+
+        // Calculate expected value as (SA + A + D + SD) / 4
+        let totalObserved = obsSA + obsA + obsD + obsSD;
+        let expected = totalObserved / 4;
+
+        // Get df and critical value
+        let df = parseFloat(document.getElementById("df").value);
+        let critX2 = parseFloat(
+          document.getElementById("critical_value").value
+        );
+
+        // Calculate (O - E), (O - E)^2, and (O - E)^2 / E for each category
+        let diffSA = obsSA - expected;
+        let diffA = obsA - expected;
+        let diffD = obsD - expected;
+        let diffSD = obsSD - expected;
+
+        let sqDiffSA = diffSA ** 2;
+        let sqDiffA = diffA ** 2;
+        let sqDiffD = diffD ** 2;
+        let sqDiffSD = diffSD ** 2;
+
+        let chiSqSA = sqDiffSA / expected;
+        let chiSqA = sqDiffA / expected;
+        let chiSqD = sqDiffD / expected;
+        let chiSqSD = sqDiffSD / expected;
+
+        let totalChiSq = chiSqSA + chiSqA + chiSqD + chiSqSD;
+
+        // Display results in table
+        document.getElementById("obs_sa").textContent = obsSA;
+        document.getElementById("obs_a").textContent = obsA;
+        document.getElementById("obs_d").textContent = obsD;
+        document.getElementById("obs_sd").textContent = obsSD;
+
+        document.getElementById("exp_sa").textContent =
+          document.getElementById("exp_a").textContent =
+          document.getElementById("exp_d").textContent =
+          document.getElementById("exp_sd").textContent =
+            expected.toFixed(2);
+
+        document.getElementById("diff_sa").textContent = diffSA.toFixed(2);
+        document.getElementById("diff_a").textContent = diffA.toFixed(2);
+        document.getElementById("diff_d").textContent = diffD.toFixed(2);
+        document.getElementById("diff_sd").textContent = diffSD.toFixed(2);
+
+        document.getElementById("squared_diff_sa").textContent =
+          sqDiffSA.toFixed(2);
+        document.getElementById("squared_diff_a").textContent =
+          sqDiffA.toFixed(2);
+        document.getElementById("squared_diff_d").textContent =
+          sqDiffD.toFixed(2);
+        document.getElementById("squared_diff_sd").textContent =
+          sqDiffSD.toFixed(2);
+
+        document.getElementById("chi_sq_sa").textContent = chiSqSA.toFixed(2);
+        document.getElementById("chi_sq_a").textContent = chiSqA.toFixed(2);
+        document.getElementById("chi_sq_d").textContent = chiSqD.toFixed(2);
+        document.getElementById("chi_sq_sd").textContent = chiSqSD.toFixed(2);
+
+        document.getElementById("total_chi_sq").textContent =
+          totalChiSq.toFixed(2);
+
+        // Generate interpretation
+        let interpretationText = `The calculated chi-square value is ${totalChiSq.toFixed(
+          2
+        )}. `;
+        if (totalChiSq > critX2) {
+          interpretationText += `This is greater than the critical value of ${critX2}, so the result is significant at the 0.05 level. The null hypothesis is rejected, indicating that cultural beliefs significantly relate to malnutrition in pregnancy.`;
+        } else {
+          interpretationText += `This is less than the critical value of ${critX2}, so the result is not significant at the 0.05 level. The null hypothesis is accepted.`;
+        }
+        document.getElementById("interpretation").value = interpretationText;
+      }
+
+      function copyToClipboard() {
+        let table = document.getElementById("resultTable").outerHTML;
+        let interpretation = document.getElementById("interpretation").value;
+
+        let copyText = table + "\n\n" + interpretation;
+        let textarea = document.createElement("textarea");
+        textarea.value = copyText;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+
+        alert("Results copied to clipboard!");
+      }
+    </script>
+  </body>
+</html>

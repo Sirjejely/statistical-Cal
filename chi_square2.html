@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chi-Square Calculator</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      table {
+        border-collapse: collapse;
+        margin: 20px 0;
+      }
+      table,
+      th,
+      td {
+        border: 1px solid #000;
+        padding: 10px;
+        text-align: center;
+      }
+      th {
+        background-color: #f2f2f2;
+      }
+      input {
+        width: 50px;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Chi-Square Calculator</h2>
+
+    <h3>Input Row Labels</h3>
+    <div>
+      <label for="row1">Row 1 Label:</label>
+      <input type="text" id="row1" />
+    </div>
+    <div>
+      <label for="row2">Row 2 Label:</label>
+      <input type="text" id="row2" />
+    </div>
+    <div>
+      <label for="row3">Row 3 Label:</label>
+      <input type="text" id="row3" />
+    </div>
+    <div>
+      <label for="row4">Row 4 Label:</label>
+      <input type="text" id="row4" />
+    </div>
+    <div>
+      <label for="row5">Row 5 Label:</label>
+      <input type="text" id="row5" />
+    </div>
+
+    <h3>Input Column Labels</h3>
+    <div>
+      <label for="col1">Column 1 Label:</label>
+      <input type="text" id="col1" />
+    </div>
+    <div>
+      <label for="col2">Column 2 Label:</label>
+      <input type="text" id="col2" />
+    </div>
+    <div>
+      <label for="col3">Column 3 Label:</label>
+      <input type="text" id="col3" />
+    </div>
+    <div>
+      <label for="col4">Column 4 Label:</label>
+      <input type="text" id="col4" />
+    </div>
+    <div>
+      <label for="col5">Column 5 Label:</label>
+      <input type="text" id="col5" />
+    </div>
+
+    <h3>Input Observed Frequencies (5x5 Matrix)</h3>
+    <table id="matrixTable">
+      <thead>
+        <tr>
+          <th></th>
+          <th id="colLabel1"></th>
+          <th id="colLabel2"></th>
+          <th id="colLabel3"></th>
+          <th id="colLabel4"></th>
+          <th id="colLabel5"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th id="rowLabel1"></th>
+          <td><input type="number" class="observed" /></td>
+          <td><input type="number" class="observed" /></td>
+          <td><input type="number" class="observed" /></td>
+          <td><input type="number" class="observed" /></td>
+          <td><input type="number" class="observed" /></td>
+        </tr>
+        <tr>
+          <th id="rowLabel2"></th>
+          <td><input type="number" class="observed" /></td>
+          <td><input type="number" class="observed" /></td>
+          <td><input type="number" class="observed" /></td>
+          <td><input type="number" class="observed" /></td>
+          <td><input type="number" class="observed" /></td>
+        </tr>
+        <tr>
+          <th id="rowLabel3"></th>
+          <td><input type="number" class="observed" /></td>
+          <td><input type="number" class="observed" /></td>
+          <td><input type="number" class="observed" /></td>
+          <td><input type="number" class="observed" /></td>
+          <td><input type="number" class="observed" /></td>
+        </tr>
+        <tr>
+          <th id="rowLabel4"></th>
+          <td><input type="number" class="observed" /></td>
+          <td><input type="number" class="observed" /></td>
+          <td><input type="number" class="observed" /></td>
+          <td><input type="number" class="observed" /></td>
+          <td><input type="number" class="observed" /></td>
+        </tr>
+        <tr>
+          <th id="rowLabel5"></th>
+          <td><input type="number" class="observed" /></td>
+          <td><input type="number" class="observed" /></td>
+          <td><input type="number" class="observed" /></td>
+          <td><input type="number" class="observed" /></td>
+          <td><input type="number" class="observed" /></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div>
+      <label for="df">Degrees of Freedom:</label>
+      <input type="number" id="df" required />
+    </div>
+    <div>
+      <label for="tabulated">Chi-Square Tabulated:</label>
+      <input type="number" step="0.01" id="tabulated" required />
+    </div>
+
+    <button onclick="calculateChiSquare()">Calculate Chi-Square</button>
+
+    <h3>Results</h3>
+    <div id="results"></div>
+
+    <script>
+      function calculateChiSquare() {
+        const observedInputs = document.querySelectorAll(".observed");
+        const observed = Array.from(observedInputs).map(
+          (input) => Number(input.value) || 0
+        );
+
+        const rowLabels = [
+          document.getElementById("row1").value,
+          document.getElementById("row2").value,
+          document.getElementById("row3").value,
+          document.getElementById("row4").value,
+          document.getElementById("row5").value,
+        ].filter((label) => label); // Filter out empty labels
+
+        const colLabels = [
+          document.getElementById("col1").value,
+          document.getElementById("col2").value,
+          document.getElementById("col3").value,
+          document.getElementById("col4").value,
+          document.getElementById("col5").value,
+        ].filter((label) => label); // Filter out empty labels
+
+        const matrixSize = 5;
+        const colSize = 5;
+        let chiSquareCalc = 0;
+
+        let rowSums = Array(matrixSize).fill(0);
+        let colSums = Array(colSize).fill(0);
+        let total = 0;
+
+        for (let i = 0; i < matrixSize; i++) {
+          for (let j = 0; j < colSize; j++) {
+            const value = observed[i * colSize + j];
+            rowSums[i] += value;
+            colSums[j] += value;
+            total += value;
+          }
+        }
+
+        let resultTable = `<table><thead><tr><th></th>`;
+        for (let j = 0; j < colSize; j++) {
+          if (colSums[j] > 0) {
+            // Only show column if it has values
+            resultTable += `<th>${colLabels[j]}</th>`;
+          }
+        }
+        resultTable += `<th>Total</th></tr></thead><tbody>`;
+
+        for (let i = 0; i < matrixSize; i++) {
+          if (rowSums[i] > 0) {
+            // Only show row if it has values
+            resultTable += `<tr><th>${rowLabels[i]}</th>`;
+            for (let j = 0; j < colSize; j++) {
+              const expected = (rowSums[i] * colSums[j]) / total || 0; // Handle division by zero
+              const observedValue = observed[i * colSize + j];
+              if (observedValue > 0) {
+                // Only calculate for non-zero observed values
+                chiSquareCalc +=
+                  Math.pow(observedValue - expected, 2) / expected;
+                resultTable += `<td>${observedValue} (${expected.toFixed(
+                  2
+                )})</td>`;
+              }
+            }
+            resultTable += `<td>${rowSums[i]}</td></tr>`;
+          }
+        }
+
+        resultTable += `<tr><th>Total</th>`;
+        for (let j = 0; j < colSize; j++) {
+          if (colSums[j] > 0) {
+            // Only show column if it has values
+            resultTable += `<td>${colSums[j]}</td>`;
+          }
+        }
+        resultTable += `<td>${total}</td></tr></tbody></table>`;
+
+        const df = Number(document.getElementById("df").value);
+        const tabulated = Number(document.getElementById("tabulated").value);
+
+        let interpretation = "";
+        for (let i = 0; i < matrixSize; i++) {
+          const rowTotal = rowSums[i];
+          const positiveCount = observed[i * colSize] || 0;
+          const negativeCount = observed[i * colSize + 1] || 0;
+
+          if (rowTotal > 0) {
+            const positivePercentage = (
+              (positiveCount / rowTotal) *
+              100
+            ).toFixed(1);
+            const negativePercentage = (
+              (negativeCount / rowTotal) *
+              100
+            ).toFixed(1);
+            interpretation += `Among the ${rowTotal} respondents with ${rowLabels[i]}, ${positiveCount} (${positivePercentage}%) held a ${colLabels[0]} perception, while ${negativeCount} (${negativePercentage}%) held a ${colLabels[1]} perception.<br>`;
+          }
+        }
+
+        document.getElementById("results").innerHTML = `
+                ${resultTable}
+                <p><strong>Chi-Square Calculated: ${chiSquareCalc.toFixed(
+                  3
+                )}</strong></p>
+                <p>Degrees of Freedom: ${df}</p>
+                <p>Chi-Square Tabulated: ${tabulated}</p>
+                <p>${
+                  chiSquareCalc > tabulated
+                    ? "<strong>Reject the null hypothesis.</strong>"
+                    : "<strong>Fail to reject the null hypothesis.</strong>"
+                }</p>
+                <h4>Interpretation</h4>
+                <p>${interpretation}</p>
+            `;
+      }
+
+      // Update the column labels when inputs change
+      function updateLabels() {
+        document.getElementById("rowLabel1").innerText =
+          document.getElementById("row1").value || "";
+        document.getElementById("rowLabel2").innerText =
+          document.getElementById("row2").value || "";
+        document.getElementById("rowLabel3").innerText =
+          document.getElementById("row3").value || "";
+        document.getElementById("rowLabel4").innerText =
+          document.getElementById("row4").value || "";
+        document.getElementById("rowLabel5").innerText =
+          document.getElementById("row5").value || "";
+
+        document.getElementById("colLabel1").innerText =
+          document.getElementById("col1").value || "";
+        document.getElementById("colLabel2").innerText =
+          document.getElementById("col2").value || "";
+        document.getElementById("colLabel3").innerText =
+          document.getElementById("col3").value || "";
+        document.getElementById("colLabel4").innerText =
+          document.getElementById("col4").value || "";
+        document.getElementById("colLabel5").innerText =
+          document.getElementById("col5").value || "";
+      }
+
+      // Add event listeners to update labels on input change
+      document.querySelectorAll("input[type='text']").forEach((input) => {
+        input.addEventListener("input", updateLabels);
+      });
+    </script>
+  </body>
+</html>
